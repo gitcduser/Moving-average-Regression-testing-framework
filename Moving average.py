@@ -166,93 +166,9 @@ def get_position(df):
 
     return df
 
-#参数寻优
-
-from Function import get_zhangdieting_price ,get_data_from_akshare
-from Signal import get_moving_average_signal, moving_average_para_list
-from Position import get_position
-from Evaluate import equity_curve_close
-from Sheet import save_data_to_csv
-import pandas as pd
-import akshare as ak
-import time
-import json
-from time import strftime
-
-#准备基本参数 
-symbol = 'hd300'
-stock_name = '沪深300'
-start_date = '20180101'
-end_date = time.strftime("%Y%m%d") #运行当天
-
-#获取数据
-df = get_data_from_akshare(symbol,start_date,end_date)
-df = get_zhangdieting_price(df)
-
-# 构建策略参数遍历范围
-para_list = moving_average_para_list(ma_short=range(10,200,2), ma_long=range(10,200,2))
-
-#遍历参数
-rtn= pd.DataFrame()
-for para in para_list:
-    # 计算策略交易信号，此处df需要copy
-    temp_df = get_moving_average_signal(df.copy(), para=para)
-     # 计算实际持仓
-    temp_df = get_position(temp_df)
-    # 计算资金曲线
-    temp_df = equity_curve_close(temp_df, c_rate=2.5/10000, t_rate=1.0/1000, slippage=0.01)
-    # 计算收益
-    equity_curve = temp_df.iloc[-1]['equity_curve']
-    equity_curve_base = temp_df.iloc[-1]['equity_curve_base']
-    #print(para, '策略最终收益：', equity_curve)
-    
-    rtn.loc[str(para), 'equity_curve'] = equity_curve
-    rtn.loc[str(para), 'equity_curve_base'] = equity_curve_base
-
-#print(rtn.sort_values(by='equity_curve', ascending=True))
-rtn_list = rtn.sort_values(by='equity_curve', ascending=True)
-opt_para = str(rtn_list.index[-1])
-startegy_rtn = float(rtn_list.values[-1][0].round(3))
-stock_rtn = float(rtn_list.values[-1][1].round(3))
-#fin_rtn = rtn_list.values[-1].round(3)
-print(rtn_list)
-print(f'\n*********************\n{symbol}:{stock_name}\n股票收益: {stock_rtn}\n\
-策略收益: {startegy_rtn}\n最优参数为: {opt_para}\n*********************')
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
 
 #Evaluate
+
 import pandas as pd
 import numpy as np
 pd.set_option('display.max_rows',5000)
@@ -333,3 +249,57 @@ def equity_curve_close(df, c_rate=2.5/10000, t_rate=1.0/1000,slippage=0.01):
     df.drop(['start_time', 'stock_num', 'cash', 'stock_value', 'net_value'], axis=1, inplace=True)
 
     return df
+
+
+#参数寻优
+
+from Function import get_zhangdieting_price ,get_data_from_akshare
+from Signal import get_moving_average_signal, moving_average_para_list
+from Position import get_position
+from Evaluate import equity_curve_close
+from Sheet import save_data_to_csv
+import pandas as pd
+import akshare as ak
+import time
+import json
+from time import strftime
+
+#准备基本参数 
+symbol = 'hd300'
+stock_name = '沪深300'
+start_date = '20180101'
+end_date = time.strftime("%Y%m%d") #运行当天
+
+#获取数据
+df = get_data_from_akshare(symbol,start_date,end_date)
+df = get_zhangdieting_price(df)
+
+# 构建策略参数遍历范围
+para_list = moving_average_para_list(ma_short=range(10,200,2), ma_long=range(10,200,2))
+
+#遍历参数
+rtn= pd.DataFrame()
+for para in para_list:
+    # 计算策略交易信号，此处df需要copy
+    temp_df = get_moving_average_signal(df.copy(), para=para)
+     # 计算实际持仓
+    temp_df = get_position(temp_df)
+    # 计算资金曲线
+    temp_df = equity_curve_close(temp_df, c_rate=2.5/10000, t_rate=1.0/1000, slippage=0.01)
+    # 计算收益
+    equity_curve = temp_df.iloc[-1]['equity_curve']
+    equity_curve_base = temp_df.iloc[-1]['equity_curve_base']
+    #print(para, '策略最终收益：', equity_curve)
+    
+    rtn.loc[str(para), 'equity_curve'] = equity_curve
+    rtn.loc[str(para), 'equity_curve_base'] = equity_curve_base
+
+#print(rtn.sort_values(by='equity_curve', ascending=True))
+rtn_list = rtn.sort_values(by='equity_curve', ascending=True)
+opt_para = str(rtn_list.index[-1])
+startegy_rtn = float(rtn_list.values[-1][0].round(3))
+stock_rtn = float(rtn_list.values[-1][1].round(3))
+#fin_rtn = rtn_list.values[-1].round(3)
+print(rtn_list)
+print(f'\n*********************\n{symbol}:{stock_name}\n股票收益: {stock_rtn}\n\
+策略收益: {startegy_rtn}\n最优参数为: {opt_para}\n*********************')
