@@ -1,3 +1,5 @@
+#回测框架+移动平均策略+参数寻优
+#回测框架
 from Function import get_zhangdieting_price ,get_data_from_akshare
 from Signal import get_moving_average_signal
 from Position import get_position
@@ -21,16 +23,16 @@ end_date = time.strftime("%Y%m%d")
 df = get_data_from_akshare(symbol,start_date,end_date)
 df = get_zhangdieting_price(df)
 
-#Get Signal
+#计算开平仓信号
 df = get_moving_average_signal(df,para=para)
 #print(df[df['signal']==1])
 #print(df[df['signal']==0])
 #print(df['signal'].value_counts())
 
-#Get position
+#计算实际持仓
 df = get_position(df)
 
-#Get equity curve
+#计算资金曲线
 df = equity_curve_close(df, c_rate=2.5/10000, t_rate=1.0/1000,slippage=0.01)
 print(df)
 equity_curve = df.iloc[-1]['equity_curve']
@@ -57,7 +59,7 @@ def get_data_from_akshare(symbol,start_date,end_date,):
 
     return df
 
-
+#涨跌停计算
 def get_zhangdieting_price(df):
     """
     计算股票涨跌停价格，在计算的时候应按照严格的四舍五入。
@@ -74,7 +76,7 @@ def get_zhangdieting_price(df):
 
 
 #Signal
-
+#计算开平仓条件
 import pandas as pd
 import numpy as np
 pd.set_option('expand_frame_repr', False)  # 当列太多时不换行
@@ -130,7 +132,8 @@ def moving_average_para_list(ma_short=range(10, 200,2), ma_long=range(10, 250,2)
 
   
  
- #Position
+#Position
+#计算实际持仓
 import pandas as pd
 pd.set_option('expand_frame_repr', False)  # 当列太多时不换行
 pd.set_option('display.max_rows', 5000)  # 最多显示数据的行数
@@ -168,7 +171,7 @@ def get_position(df):
 
 
 #Evaluate
-
+#计算资金曲线
 import pandas as pd
 import numpy as np
 pd.set_option('display.max_rows',5000)
