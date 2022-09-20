@@ -19,16 +19,13 @@ para = [40,82]
 symbol = '002131'
 start_date = '20170101'
 end_date = time.strftime("%Y%m%d")
+
 #Get data
 df = get_data_from_akshare(symbol,start_date,end_date)
 df = get_zhangdieting_price(df)
 
 #计算开平仓信号
 df = get_moving_average_signal(df,para=para)
-#print(df[df['signal']==1])
-#print(df[df['signal']==0])
-#print(df['signal'].value_counts())
-
 #计算实际持仓
 df = get_position(df)
 
@@ -153,11 +150,11 @@ def get_position(df):
     df['pos'] = df['signal'].shift()                
     df['pos'].fillna(value = 0, inplace = True)
    
-    #Can not buy condition
+    #可以买入的条件
     cannot_buy_condition = df['收盘价'] >=  df['涨停价'] 
     df.loc[cannot_buy_condition.shift() & (df['signal'].shift() == 1), 'pos'] = None
 
-    #can not sell condition
+    #不能卖出的条件
     cannot_sell_condition = df['收盘价'] <= df['跌停价']
     df.loc[cannot_sell_condition.shift() & (df['signal'].shift() == 0), 'pos'] = None
  
