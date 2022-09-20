@@ -292,12 +292,8 @@ for para in para_list:
     # 计算收益
     equity_curve = temp_df.iloc[-1]['equity_curve']
     equity_curve_base = temp_df.iloc[-1]['equity_curve_base']
-    #print(para, '策略最终收益：', equity_curve)
-    
     rtn.loc[str(para), 'equity_curve'] = equity_curve
     rtn.loc[str(para), 'equity_curve_base'] = equity_curve_base
-
-#print(rtn.sort_values(by='equity_curve', ascending=True))
 rtn_list = rtn.sort_values(by='equity_curve', ascending=True)
 opt_para = str(rtn_list.index[-1])
 startegy_rtn = float(rtn_list.values[-1][0].round(3))
